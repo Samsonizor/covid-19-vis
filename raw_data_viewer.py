@@ -22,10 +22,9 @@ plot_scale = 'linear'
 timeseries_csv_path = '../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv'.format(mode_to_file[mode])
 
 test = pd.read_csv(timeseries_csv_path, nrows=443, parse_dates=True, index_col=[1,0], keep_default_na=False)
-print(test)
 test = test.T
 test = test.drop(['Lat', 'Long'], axis=0)
-print(test.to_string())
+print(test)
 if location_minor:
     title = 'COVID-19 {} in {}, {}'.format(mode, location_minor, location_major)
     test[location_major][location_minor].plot()

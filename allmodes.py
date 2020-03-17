@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def generate_world_stats(data):
+def generate_region_stats(data, given_location_major=None):
     """
     Given the overall data, sum the columns to create a dataframs with the
-    stats for the world
+    stats for the world or for a major location when given
     """
     col_length = len(data.index.array)
     total_dead = np.zeros(col_length)
@@ -14,6 +14,8 @@ def generate_world_stats(data):
     for headers in data:
         location_minor = headers[1]
         location_major = headers[0]
+        if given_location_major and not location_major==given_location_major:
+            continue
         location_active_cases = list(data[location_major][location_minor]['active cases'])
         location_deaths = list(data[location_major][location_minor]['deaths'])
         location_recoveries = list(data[location_major][location_minor]['recoveries'])
@@ -34,8 +36,8 @@ mode_to_file = {
     'Cases': 'Confirmed'
 }
 
-location_major = 'China'
-location_minor = 'Hubei'
+location_major = ''
+location_minor = 'Virginia'
 
 # plot_scale = 'log'
 plot_scale = 'linear'
@@ -63,18 +65,18 @@ data_deaths.columns = pd.MultiIndex.from_tuples([(a, b, 'deaths') for a,b in dat
 data_recoveries.columns = pd.MultiIndex.from_tuples([(a, b, 'recoveries') for a,b in data_recoveries.columns], names=('major location','minor location','status'))
 data_active_cases.columns = pd.MultiIndex.from_tuples([(a, b, 'active cases') for a,b in data_active_cases.columns], names=('major location','minor location','status'))
 
-data = pd.merge(data_recoveries, data_deaths, left_index=True, right_index=True)
-data = pd.merge(data, data_active_cases, left_index=True, right_index=True)
+data = pd.merge(data_active_cases, data_recoveries, left_index=True, right_index=True)
+data = pd.merge(data, data_deaths, left_index=True, right_index=True)
 
 if not location_major or location_major == '':
     title = 'COVID-19 on Earth'.format(location_minor, location_major)
-    data_subset = generate_world_stats(data)
+    data_subset = generate_region_stats(data)
 elif location_major and location_minor and location_minor != '':
     title = 'COVID-19 in {}, {}'.format(location_minor, location_major)
     data_subset = data[location_major][location_minor]
 else:
     title = 'COVID-19 in {}'.format(location_major)
-    data_subset = data[location_major]['']
+    data_subset = generate_region_stats(data, location_major)
 
 if plot_style == 'line':
     data_subset.plot()

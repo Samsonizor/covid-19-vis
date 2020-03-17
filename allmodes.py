@@ -2,21 +2,46 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+def generate_world_stats(data):
+    """
+    Given the overall data, sum the columns to create a dataframs with the
+    stats for the world
+    """
+    col_length = len(data.index.array)
+    total_dead = np.zeros(col_length)
+    total_recovered = np.zeros(col_length)
+    total_active = np.zeros(col_length)
+    for headers in data:
+        location_minor = headers[1]
+        location_major = headers[0]
+        location_active_cases = list(data[location_major][location_minor]['active cases'])
+        location_deaths = list(data[location_major][location_minor]['deaths'])
+        location_recoveries = list(data[location_major][location_minor]['recoveries'])
+        total_dead += location_deaths
+        total_recovered += location_recoveries
+        total_active += location_active_cases
+
+    sum_data = {
+        'deaths': total_dead,
+        'recovered': total_recovered,
+        'active cases': total_active,
+    }
+    return pd.DataFrame(data=sum_data, index=data.index)
+
 mode_to_file = {
     'Deaths': 'Deaths',
     'Recoveries': 'Recovered',
     'Cases': 'Confirmed'
 }
 
-location_major = 'Spain'
-# location_minor = 'Sichuan'
-location_minor = None
+location_major = 'China'
+location_minor = 'Hubei'
 
-plot_scale = 'log'
-# plot_scale = 'linear'
+# plot_scale = 'log'
+plot_scale = 'linear'
 
-plot_style = 'area'
-# plot_style = 'line'
+# plot_style = 'area'
+plot_style = 'line'
 
 csv_path_formattable = '../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv'
 
@@ -41,12 +66,15 @@ data_active_cases.columns = pd.MultiIndex.from_tuples([(a, b, 'active cases') fo
 data = pd.merge(data_recoveries, data_deaths, left_index=True, right_index=True)
 data = pd.merge(data, data_active_cases, left_index=True, right_index=True)
 
-if location_minor:
+if not location_major or location_major == '':
+    title = 'COVID-19 on Earth'.format(location_minor, location_major)
+    data_subset = generate_world_stats(data)
+elif location_major and location_minor and location_minor != '':
     title = 'COVID-19 in {}, {}'.format(location_minor, location_major)
     data_subset = data[location_major][location_minor]
 else:
     title = 'COVID-19 in {}'.format(location_major)
-    data_subset = data[location_major]
+    data_subset = data[location_major]['']
 
 if plot_style == 'line':
     data_subset.plot()

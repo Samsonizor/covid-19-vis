@@ -8,15 +8,15 @@ mode_to_file = {
     'Cases': 'Confirmed'
 }
 
-location_major = 'Spain'
-# location_minor = 'Sichuan'
-location_minor = None
+location_major = 'China'
+location_minor = 'Hubei'
 
-plot_scale = 'log'
-# plot_scale = 'linear'
+plot_scale = 'linear'
+# plot_scale = 'log'
 
-plot_style = 'area'
-# plot_style = 'line'
+
+# plot_style = 'area'
+plot_style = 'line'
 
 csv_path_formattable = '../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv'
 
@@ -34,12 +34,12 @@ data_cases = data_cases.drop(['Lat', 'Long'], axis=0)
 
 data_active_cases = data_cases-data_recoveries-data_deaths
 
+data_active_cases.columns = pd.MultiIndex.from_tuples([(a, b, 'active cases') for a,b in data_active_cases.columns], names=('major location','minor location','status'))
 data_deaths.columns = pd.MultiIndex.from_tuples([(a, b, 'deaths') for a,b in data_deaths.columns], names=('major location','minor location','status'))
 data_recoveries.columns = pd.MultiIndex.from_tuples([(a, b, 'recoveries') for a,b in data_recoveries.columns], names=('major location','minor location','status'))
-data_active_cases.columns = pd.MultiIndex.from_tuples([(a, b, 'active cases') for a,b in data_active_cases.columns], names=('major location','minor location','status'))
 
-data = pd.merge(data_recoveries, data_deaths, left_index=True, right_index=True)
-data = pd.merge(data, data_active_cases, left_index=True, right_index=True)
+data = pd.merge(data_active_cases, data_deaths, left_index=True, right_index=True)
+data = pd.merge(data, data_recoveries, left_index=True, right_index=True)
 
 if location_minor:
     title = 'COVID-19 in {}, {}'.format(location_minor, location_major)

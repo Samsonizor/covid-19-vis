@@ -11,11 +11,13 @@ def generate_region_stats(data, given_location_major=None):
     total_dead = np.zeros(col_length)
     total_recovered = np.zeros(col_length)
     total_active = np.zeros(col_length)
-    for headers in data:
-        location_minor = headers[1]
-        location_major = headers[0]
+    headers = set([(loc[0], loc[1]) for loc in data])
+    for header in headers:
+        location_minor = header[1]
+        location_major = header[0]
         if given_location_major and not location_major==given_location_major:
             continue
+        print('calculating stats for {}, {}'.format(location_minor, location_major))
         location_active_cases = list(data[location_major][location_minor]['active cases'])
         location_deaths = list(data[location_major][location_minor]['deaths'])
         location_recoveries = list(data[location_major][location_minor]['recoveries'])
@@ -24,9 +26,9 @@ def generate_region_stats(data, given_location_major=None):
         total_active += location_active_cases
 
     sum_data = {
-        'deaths': total_dead,
-        'recovered': total_recovered,
         'active cases': total_active,
+        'deaths': total_dead,
+        'recovered': total_recovered
     }
     return pd.DataFrame(data=sum_data, index=data.index)
 
@@ -37,7 +39,7 @@ mode_to_file = {
 }
 
 location_major = ''
-location_minor = 'Virginia'
+location_minor = ''
 
 # plot_scale = 'log'
 plot_scale = 'linear'

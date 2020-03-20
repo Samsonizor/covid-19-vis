@@ -38,11 +38,11 @@ mode_to_file = {
     'Cases': 'Confirmed'
 }
 
-location_major = ''
+location_major = 'Russia'
 location_minor = ''
 
-# plot_scale = 'log'
-plot_scale = 'linear'
+plot_scale = 'log'
+# plot_scale = 'linear'
 
 # plot_style = 'area'
 plot_style = 'line'
@@ -81,7 +81,7 @@ else:
     data_subset = generate_region_stats(data, location_major)
 
 if plot_style == 'line':
-    data_subset.plot()
+    data_subset.plot(marker='o')
 else:
     data_subset.plot.area()
 
@@ -90,5 +90,8 @@ plt.grid(True, which="both")
 plt.title(title)
 plt.xlabel('date')
 plt.ylabel('people')
-plt.ylim(bottom=1)
+if plot_scale == 'log':
+    plt.ylim(bottom=1)
+else:
+    plt.ylim(bottom=0)
 plt.show()

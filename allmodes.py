@@ -38,14 +38,14 @@ mode_to_file = {
     'Cases': 'Confirmed'
 }
 
-location_major = 'Russia'
+location_major = 'Iran'
 location_minor = ''
 
-plot_scale = 'log'
-# plot_scale = 'linear'
+# plot_scale = 'log'
+plot_scale = 'linear'
 
-# plot_style = 'area'
-plot_style = 'line'
+plot_style = 'area'
+# plot_style = 'line'
 
 csv_path_formattable = '../csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-{}.csv'
 
@@ -80,18 +80,34 @@ else:
     title = 'COVID-19 in {}'.format(location_major)
     data_subset = generate_region_stats(data, location_major)
 
-if plot_style == 'line':
-    data_subset.plot(marker='o')
-else:
-    data_subset.plot.area()
+diff = data_subset.diff()
 
-plt.yscale(plot_scale)
-plt.grid(True, which="both")
-plt.title(title)
-plt.xlabel('date')
-plt.ylabel('people')
-if plot_scale == 'log':
-    plt.ylim(bottom=1)
+fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
+
+if plot_style == 'line':
+    data_subset.plot(marker='o', ax=ax1)
+    diff.plot.bar(ax=ax2)
 else:
-    plt.ylim(bottom=0)
+    data_subset.plot.area(ax=ax1)
+    diff.plot.bar(ax=ax2)
+
+ax1.set_yscale(plot_scale)
+
+ax1.grid(True, which="both")
+ax2.grid(True, which="both")
+
+ax1.set_title(title)
+
+ax2.set_xlabel('date')
+
+ax1.set_ylabel('people')
+ax2.set_ylabel('daily change in people')
+
+if plot_scale == 'log':
+    ax1.set_ylim(bottom=1)
+    ax2.set_ylim(bottom=1)
+else:
+    ax1.set_ylim(bottom=0)
+    ax2.set_ylim(bottom=0)
+
 plt.show()
